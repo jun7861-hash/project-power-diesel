@@ -50,12 +50,12 @@ steps:
     globExpressions: '*.xsd'
     targetFolder: '$(System.DefaultWorkingDirectory)/xsd'
 
-- task: LambdaDeployFunction@1
-  inputs:
-    awsCredentials: 'jun7861-namespace-connection001'
-    regionName: 'ap-southeast-1'
-    deploymentMode: 'codeonly'
-    functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-namespace-downloadConfiguration'
-    codeLocation: 's3object'
-    s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-s3-source-code'
-    s3ObjectKey: 'functions/namespace-backend.zip'
+# - task: LambdaDeployFunction@1
+#   inputs:
+#     awsCredentials: 'jun7861-namespace-connection001'
+#     regionName: 'ap-southeast-1'
+#     deploymentMode: 'codeonly'
+#     functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-namespace-downloadConfiguration'
+#     codeLocation: 's3object'
+#     s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-s3-source-code'
+#     s3ObjectKey: 'functions/namespace-backend.zip'
