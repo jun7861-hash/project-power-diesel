@@ -59,6 +59,7 @@ stages:
               **/*
               !.git/**
               !terraform/**
+            SourceFolder: '$(System.DefaultWorkingDirectory)'
             TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ parameters.AppName }}-app-lambda'
             
         
