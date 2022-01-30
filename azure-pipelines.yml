@@ -120,10 +120,10 @@ stages:
       steps:
       - task: LambdaDeployFunction@1
         inputs:
-          awsCredentials: '${{ parameters.AzureResourceName }}-dev'
+          awsCredentials: 'jun7861-namespace-connection001'
           regionName: 'ap-southeast-1'
           deploymentMode: 'codeonly'
-          functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-$(System.StageName)-${{ parameters.awsRegionShortName }}-lam-namespace-createConfiguration'
+          functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-lam-namespace-createConfiguration'
           codeLocation: 's3object'
-          s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-$(System.StageName)-${{ parameters.awsRegionShortName }}-s3-source-code'
+          s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-s3-source-code'
           s3ObjectKey: 'functions/namespace-backend.zip'
