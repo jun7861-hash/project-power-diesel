@@ -80,14 +80,14 @@ stages:
             replaceExistingArchive: true
 
 
-      # - job: TF_Plan_DEV
-      #   dependsOn: APP_BUILD
-      #   displayName: "API TF Plan for DEV"
-      #   steps:
-      #     # Give Terraform access to Application Code
-      #     - task: DownloadBuildArtifacts@0
-      #       inputs:
-      #         buildType: 'current'
-      #         downloadType: 'single'
-      #         artifactName: 'functions'
-      #         downloadPath: 'terraform/'
+      - job: TF_Plan_DEV
+        dependsOn: APP_BUILD
+        displayName: "API TF Plan for DEV"
+        steps:
+          # Give Terraform access to Application Code
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'functions'
+              downloadPath: 'terraform/'
