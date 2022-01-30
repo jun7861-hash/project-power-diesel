@@ -62,19 +62,19 @@ stages:
             TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ parameters.AppName }}-app-lambda'
             
         
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)/'
+            ArtifactName: '/namespace-backend.zip'
+            publishLocation: 'Container'
+            
+        
         - task: ArchiveFiles@2
-          displayName: 'archieve lambda codes'
+          displayName: 'archive lambda codes'
           inputs:
             rootFolderOrFile: '$(Build.BinariesDirectory)/${{ parameters.AppName }}-app-lambda'
             includeRootFolder: false
             archiveType: 'zip'
             archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)/namespace-backend.zip'
             replaceExistingArchive: true
-            
-        
-        - task: PublishBuildArtifacts@1
-          inputs:
-            PathtoPublish: '$(Build.ArtifactStagingDirectory)/'
-            ArtifactName: '/namespace-backend.zip'
-            publishLocation: 'Container'
 
