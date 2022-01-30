@@ -73,9 +73,9 @@ stages:
         - task: ArchiveFiles@2
           displayName: 'archive lambda codes'
           inputs:
-            rootFolderOrFile: '$(Build.BinariesDirectory)/${{ parameters.AppName }}-app-lambda'
+            rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.AppName }}-app-lambda'
             includeRootFolder: false
             archiveType: 'zip'
-            archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)/namespace-backend.zip'
+            archiveFile: '$(Build.DefaultWorkingDirectory)/${{ parameters.AppName }}-app-lambda/namespace-backend.zip'
             replaceExistingArchive: true
 
