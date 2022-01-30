@@ -36,7 +36,6 @@ parameters:
 stages:
   - stage: dev
     displayName: "Dev"
-    condition: and(succeeded(), eq(variables['Build.Reason'],'Manual'
     jobs:
     - deployment: STAGE_GATE
       displayName: "STAGE GATE"
