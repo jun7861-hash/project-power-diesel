@@ -37,8 +37,6 @@ stages:
   - stage: dev
     displayName: "Dev"
     condition: and(succeeded(), eq(variables['Build.Reason'],'Manual'))
-    variables:
-    - group: namespace-backend-dev
     pool: $(agentPoolLinux)
     jobs:
     - deployment: STAGE_GATE
