@@ -33,29 +33,97 @@ parameters:
     displayName: "App Name"
     type: string
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+  - stage: dev
+    displayName: "Dev"
+    condition: and(succeeded(), eq(variables['Build.Reason'],'Manual'))
+    variables:
+    - group: namespace-backend-dev
+    pool: $(agentPoolLinux)
+    jobs:
+    - deployment: STAGE_GATE
+      displayName: "STAGE GATE"
+      environment: 'namespace-backend-dev'
+    
+    - job: APP_BUILD
+      displayName: "Build Dev"
+      pool: $(agentPoolWindows)
+      steps:
+       - task: NodeTool@0
+         inputs:
+          versionSpec: '12.x'
+         displayName: 'Install Node.js'
+       
+       - script:
+          npm install
+          # npm test
+         displayName: 'npm install and build lambda'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-- task: S3Download@1
-  inputs:
-    awsCredentials: 'jun7861-namespace-connection001'
-    regionName: 'ap-southeast-1'
-    bucketName: 'jun7861-namespace-bucket'
-    sourceFolder: '$(System.DefaultWorkingDirectory)/xsd'
-    globExpressions: '*.xsd'
-    targetFolder: '$(System.DefaultWorkingDirectory)/xsd'
+      #  - task: Npm@1
+      #    displayName: 'npm test'
+      #    inputs:
+      #     command: 'custom'
+      #     verbose: false
+      #     customCommand: 'test'
+      
+       - task: CopyFiles@2
+         displayName: 'Copy lambda codes'
+         inputs:
+          Contents: |
+            **/*
+            !.git/**
+            !terraform/**
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/${{ parameters.AppName }}-app-lambda'
+      
+       # Zip the lambda codes
+       - task: ArchiveFiles@2
+         displayName: 'Archive lambda codes'
+         inputs:
+          rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.AppName }}-app-lambda'
+          includeRootFolder: false
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/namespace-backend.zip'
+          replaceExistingArchive: true
+      
+       - task: PublishBuildArtifacts@1
+         inputs:
+          pathToPublish: '$(Build.ArtifactStagingDirectory)/namespace-backend.zip'
+          artifactName: functions
+    
+    - job: TF_Plan_DEV
+      dependsOn: APP_BUILD
+      displayName: "API TF Plan for DEV"
+      steps:
+      # Give Terraform access to Application Code
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: 'functions'
+          downloadPath: 'terraform/'
 
-# - task: LambdaDeployFunction@1
-#   inputs:
-#     awsCredentials: 'jun7861-namespace-connection001'
-#     regionName: 'ap-southeast-1'
-#     deploymentMode: 'codeonly'
-#     functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-namespace-downloadConfiguration'
-#     codeLocation: 's3object'
-#     s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-${{ parameters.awsRegionShortName }}-s3-source-code'
-#     s3ObjectKey: 'functions/namespace-backend.zip'
+    - job: TF_Apply_DEV
+      displayName: "API TF Apply for DEV"
+      dependsOn: TF_Plan_DEV
+      steps:
+      # Give Terraform access to Application Code
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: 'functions'
+          downloadPath: 'terraform/'
+    
+    - job: UPDATE_ASSETS_POST_INFRASTRUCTURE
+      displayName: "Lambda Deploy to Dev"
+      dependsOn: TF_Apply_Dev
+      steps:
+      - task: LambdaDeployFunction@1
+        inputs:
+          awsCredentials: '${{ parameters.AzureResourceName }}-dev'
+          regionName: 'ap-southeast-1'
+          deploymentMode: 'codeonly'
+          functionName: '${{ parameters.Company }}-${{ parameters.AppName }}-$(System.StageName)-${{ parameters.awsRegionShortName }}-lam-namespace-createConfiguration'
+          codeLocation: 's3object'
+          s3Bucket: '${{ parameters.Company }}-${{ parameters.AppName }}-$(System.StageName)-${{ parameters.awsRegionShortName }}-s3-source-code'
+          s3ObjectKey: 'functions/namespace-backend.zip'
