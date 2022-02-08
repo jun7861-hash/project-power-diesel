@@ -1,10 +1,13 @@
 const router = require("express").Router();
 const AWS = require("aws-sdk");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 AWS.config.update({
-  accessKeyId: "AKIA4S43ABU4XEKQI65S",
-  secretAccessKey: "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",
-  region: "ap-southeast-1",
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  region: process.env.REGION,
 });
 
 const s3 = new AWS.S3();
@@ -12,7 +15,7 @@ const s3 = new AWS.S3();
 router.get("/download/:filename", async (req, res) => {
   const filename = req.params.filename;
   const file = await s3
-    .getObject({ Bucket: "junpoc-namespace", Key: filename })
+    .getObject({ Bucket: process.env.BUCKET, Key: filename })
     .promise();
   try {
     res.send(file.Body);
